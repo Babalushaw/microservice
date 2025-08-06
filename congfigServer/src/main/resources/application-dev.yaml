@@ -1,0 +1,11 @@
+server:
+  port: 9094
+spring:
+  application:
+    name: CONFIG-SERVICE
+  cloud:
+    config:
+      server:
+        git:
+          uri: https://github.com/Babalushaw/microservice_configuration.git
+          clone-on-start: true
