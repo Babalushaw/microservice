@@ -1,6 +1,7 @@
 package com.microservice.user.serviceImpl;
 
 import com.microservice.user.exception.ResourceNotFoundException;
+import com.microservice.user.external.service.HotelService;
 import com.microservice.user.model.Hotel;
 import com.microservice.user.model.Rating;
 import com.microservice.user.model.User;
@@ -21,6 +22,8 @@ import java.util.stream.Collectors;
 public class UserServiceImpl implements UserService {
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private HotelService hotelService;
     @Autowired
     private RestTemplate restTemplate;
     @Override
@@ -56,8 +59,10 @@ public class UserServiceImpl implements UserService {
         assert ratingList != null;
         List<Rating> ratingHotel= Arrays.stream(ratingList).map(rating->{
             String hotelId=rating.getHotelId();
-            ResponseEntity<Hotel> hotel=restTemplate.getForEntity("http://HOTEL-SERVICE/hotels/"+hotelId, Hotel.class);
-            rating.setHotel(hotel.getBody());
+//            ResponseEntity<Hotel> hotelEntity=restTemplate.getForEntity("http://HOTEL-SERVICE/hotels/"+hotelId, Hotel.class);
+//            Hotel hotel=hotelEntity.getBody();
+            Hotel hotel=hotelService.getHotel(hotelId);
+            rating.setHotel(hotel);
             return rating;
         }).collect(Collectors.toList());
         user.setRatingList(ratingHotel);
