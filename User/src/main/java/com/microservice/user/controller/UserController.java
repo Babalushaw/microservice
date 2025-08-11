@@ -3,6 +3,7 @@ package com.microservice.user.controller;
 import com.microservice.user.model.User;
 import com.microservice.user.service.UserService;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,10 +22,13 @@ public class UserController {
        User newUser= userService.saveUser(user);
        return ResponseEntity.status(HttpStatus.CREATED).body(newUser);
     }
-
+    int retryCount=0;
     @GetMapping("/{userId}")
-    @CircuitBreaker(name = "ratingHotelBreaker",fallbackMethod = "ratingHotelFallback")
+//    @CircuitBreaker(name = "ratingHotelBreaker",fallbackMethod = "ratingHotelFallback")
+    @Retry(name = "ratingHotelRetry",fallbackMethod = "ratingHotelFallback")
     public ResponseEntity<User> findUserById(@PathVariable String userId){
+        System.out.println("Retry Count: "+retryCount);
+        retryCount++;
         User user=userService.getUserById(userId);
         return ResponseEntity.status(HttpStatus.OK).body(user);
     }
